@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import com.aatishrana.data.database.Db;
+import com.example.NewsItem;
 
 import rx.functions.Func1;
 
@@ -13,7 +14,7 @@ import rx.functions.Func1;
 
 public class NewsItemDb
 {
-    public static final String TABLE = "new_item_table";
+    public static final String TABLE = "news_item_table";
 
     public static final String ID = "_id";
     public static final String TITLE = "title";
@@ -92,6 +93,23 @@ public class NewsItemDb
             long timestamp = Db.getLong(cursor, TIMESTAMP);
 
             return new NewsItemDb(id, title, url, publisher, category, hostname, timestamp);
+        }
+    };
+
+    public static final Func1<Cursor, NewsItem> MapToNewsItem = new Func1<Cursor, NewsItem>()
+    {
+        @Override
+        public NewsItem call(Cursor cursor)
+        {
+            long id = Db.getLong(cursor, ID);
+            String title = Db.getString(cursor, TITLE);
+            String url = Db.getString(cursor, URL);
+            String publisher = Db.getString(cursor, PUBLISHER);
+            String category = Db.getString(cursor, CATEGORY);
+            String hostname = Db.getString(cursor, HOSTNAME);
+            long timestamp = Db.getLong(cursor, TIMESTAMP);
+
+            return new NewsItem(id, title, url, publisher, category, hostname, timestamp);
         }
     };
 

@@ -14,6 +14,7 @@ import com.aatishrana.data.models.NewsItemDb;
 public class DbOpenHelper extends SQLiteOpenHelper
 {
     private static final int VERSION = 1;
+    public static final String StarredTable = "Star_" + NewsItemDb.TABLE;
 
 
     public DbOpenHelper(Context context)
@@ -25,6 +26,7 @@ public class DbOpenHelper extends SQLiteOpenHelper
     public void onCreate(SQLiteDatabase db)
     {
         db.execSQL(createNewsItemTable());
+        db.execSQL(createNewsStarItemTable());
     }
 
 
@@ -38,6 +40,20 @@ public class DbOpenHelper extends SQLiteOpenHelper
     {
         Log.i("aatish", "DataBase : creating table " + NewsItemDb.TABLE);
         return "CREATE TABLE " + NewsItemDb.TABLE + " (" +
+                NewsItemDb.ID + " INTEGER PRIMARY KEY," +
+                NewsItemDb.TITLE + " TEXT NOT NULL, " +
+                NewsItemDb.URL + " TEXT NOT NULL, " +
+                NewsItemDb.PUBLISHER + " TEXT NOT NULL, " +
+                NewsItemDb.CATEGORY + " TEXT NOT NULL, " +
+                NewsItemDb.HOSTNAME + " TEXT NOT NULL, " +
+                NewsItemDb.TIMESTAMP + " INTEGER NOT NULL " +
+                " );";
+    }
+
+    private String createNewsStarItemTable()
+    {
+        Log.i("aatish", "DataBase : creating table " + NewsItemDb.TABLE);
+        return "CREATE TABLE " + StarredTable + " (" +
                 NewsItemDb.ID + " INTEGER PRIMARY KEY," +
                 NewsItemDb.TITLE + " TEXT NOT NULL, " +
                 NewsItemDb.URL + " TEXT NOT NULL, " +

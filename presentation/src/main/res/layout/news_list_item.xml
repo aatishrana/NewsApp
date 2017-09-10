@@ -2,6 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:background="@android:color/white"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -25,13 +27,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/news_list_item_tv_publisher"
-        android:layout_margin="4dp"/>
+        android:layout_margin="4dp"
+        android:textColor="@color/link"/>
 
     <TextView
         android:id="@+id/news_list_item_tv_category"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/news_list_item_tv_host_name"
-        android:layout_margin="4dp"/>
+        android:layout_margin="4dp"
+        android:textColor="@color/lightGreyText"/>
+
+    <ImageView
+        android:id="@+id/news_list_item_iv_star"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/news_list_item_tv_host_name"
+        android:src="@drawable/ic_star_border_red_24dp"/>
 
 </RelativeLayout>

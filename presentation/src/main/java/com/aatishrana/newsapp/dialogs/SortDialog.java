@@ -20,16 +20,14 @@ import java.util.List;
 
 public class SortDialog extends Dialog
 {
-    private Button btnAsc, btnDesc;
+    private Button btnOk;
     private Spinner spinner;
     private List<String> keys;
     private SortDialogListener listener;
 
     public interface SortDialogListener
     {
-        void onSortAsc(String key);
-
-        void onSortDesc(String key);
+        void onSort(String key);
     }
 
     public SortDialog(Context context)
@@ -45,26 +43,15 @@ public class SortDialog extends Dialog
         setContentView(R.layout.dialog_sort);
 
         spinner = (Spinner) findViewById(R.id.dialog_sort_spinner);
-        btnAsc = (Button) findViewById(R.id.dialog_sort_btn_asc);
-        btnDesc = (Button) findViewById(R.id.dialog_sort_btn_desc);
+        btnOk = (Button) findViewById(R.id.dialog_sort_btn_ok);
 
-        btnDesc.setOnClickListener(new View.OnClickListener()
+        btnOk.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
                 if (listener != null)
-                    listener.onSortDesc(keys.get(spinner.getSelectedItemPosition()));
-            }
-        });
-
-        btnAsc.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                if (listener != null)
-                    listener.onSortAsc(keys.get(spinner.getSelectedItemPosition()));
+                    listener.onSort(keys.get(spinner.getSelectedItemPosition()));
             }
         });
 

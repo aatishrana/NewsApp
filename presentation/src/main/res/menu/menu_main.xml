@@ -6,20 +6,17 @@
 
     <item
         android:id="@+id/action_sort"
-        android:icon="@android:drawable/ic_menu_info_details"
         android:title="Sort"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/action_filter"
-        android:icon="@android:drawable/ic_menu_info_details"
         android:title="Filter"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_search"
-        android:icon="@android:drawable/ic_menu_search"
-        android:title="Search"
+        android:id="@+id/action_starred"
+        android:title="Starred"
         app:showAsAction="never"/>
 
 </menu>

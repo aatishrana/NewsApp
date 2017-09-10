@@ -19,8 +19,11 @@ import com.squareup.sqlbrite.BriteDatabase;
 import java.util.List;
 
 import rx.Observable;
+import rx.Observer;
 import rx.functions.Func1;
 import rx.functions.Func2;
+
+import static com.aatishrana.data.database.DbOpenHelper.StarredTable;
 
 
 /**
@@ -97,6 +100,52 @@ public class NewsRepositoryImpl implements NewsRepository
                                 return 0;
                         } else
                             return 0;
+                    }
+                });
+    }
+
+    @Override
+    public Observable<List<NewsItem>> getStarredNews()
+    {
+        String query = "SELECT * from " + StarredTable;
+        return db.createQuery(StarredTable, query, null)
+                .mapToList(NewsItemDb.MapToNewsItem)
+                .first();
+    }
+
+    @Override
+    public void starNewsItem(long id)
+    {
+        String query = "Select * from " + NewsItemDb.TABLE + " where " + NewsItemDb.ID + " = '" + id + "'";
+        db.createQuery(NewsItemDb.TABLE, query, null)
+                .mapToOne(NewsItemDb.MapToNewsItemDb)
+                .first()
+                .subscribe(new Observer<NewsItemDb>()
+                {
+                    @Override
+                    public void onCompleted()
+                    {
+                        Log.e("aatish", "new Item starred");
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(NewsItemDb newsItemDb)
+                    {
+                        db.insert(StarredTable, new NewsItemDb.Builder()
+                                .id(newsItemDb.getId())
+                                .title(newsItemDb.getTitle())
+                                .category(newsItemDb.getCategory())
+                                .hostname(newsItemDb.getHostname())
+                                .publisher(newsItemDb.getPublisher())
+                                .url(newsItemDb.getUrl())
+                                .timestamp(newsItemDb.getTimestamp())
+                                .build(), SQLiteDatabase.CONFLICT_REPLACE);
                     }
                 });
     }

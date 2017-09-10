@@ -14,4 +14,8 @@ import rx.Observable;
 public interface NewsRepository
 {
     Observable<List<NewsItem>> getLatestNews(GetFilteredNewsOptions options);
+
+    Observable<List<NewsItem>> getStarredNews();
+
+    void starNewsItem(long id);
 }

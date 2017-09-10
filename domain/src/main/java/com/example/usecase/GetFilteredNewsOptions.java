@@ -14,7 +14,6 @@ public class GetFilteredNewsOptions extends Options
     private String filterKey, filterValue;
 
     private boolean sort = false;
-    private boolean sortTypeDesc = false;
     private String sortKey;
 
     public boolean isForceRefresh()
@@ -79,15 +78,6 @@ public class GetFilteredNewsOptions extends Options
         this.sortKey = sortKey;
     }
 
-    public boolean isSortTypeDesc()
-    {
-        return sortTypeDesc;
-    }
-
-    public void setSortTypeDesc(boolean sortTypeDesc)
-    {
-        this.sortTypeDesc = sortTypeDesc;
-    }
 
     @Override
     public String toString()
@@ -99,7 +89,6 @@ public class GetFilteredNewsOptions extends Options
                 ", filterValue='" + filterValue + '\'' +
                 ", sort=" + sort +
                 ", sortKey='" + sortKey + '\'' +
-                ", sortTypeDesc='" + sortTypeDesc + '\'' +
                 '}';
     }
 }
