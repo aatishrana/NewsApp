@@ -10,5 +10,5 @@ import rx.Observable;
 
 public interface NewsRepository
 {
-    Observable<NewsItem> getLatestNews();
+    Observable<NewsItem> getLatestNews(boolean forceRefresh);
 }

@@ -38,7 +38,7 @@ public class DbOpenHelper extends SQLiteOpenHelper
     {
         Log.i("aatish", "DataBase : creating table " + NewsItemDb.TABLE);
         return "CREATE TABLE " + NewsItemDb.TABLE + " (" +
-                NewsItemDb.ID + " INTEGER NOT NULL," +
+                NewsItemDb.ID + " INTEGER PRIMARY KEY," +
                 NewsItemDb.TITLE + " TEXT NOT NULL, " +
                 NewsItemDb.URL + " TEXT NOT NULL, " +
                 NewsItemDb.PUBLISHER + " TEXT NOT NULL, " +

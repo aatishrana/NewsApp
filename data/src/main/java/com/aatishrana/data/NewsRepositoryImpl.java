@@ -1,9 +1,11 @@
 package com.aatishrana.data;
 
 
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.aatishrana.data.exceptions.NoNetworkException;
 import com.aatishrana.data.models.NewsItemDb;
 import com.aatishrana.data.models.NewsItemNetwork;
 import com.aatishrana.data.network.ApiInterface;
@@ -35,18 +37,24 @@ public class NewsRepositoryImpl implements NewsRepository
     }
 
     @Override
-    public Observable<NewsItem> getLatestNews()
+    public Observable<NewsItem> getLatestNews(boolean forceRefresh)
     {
-        return Observable.concat(getNewsFromDb(), getNewsFromApi())
-                .filter(new Func1<NewsItem, Boolean>()
-                {
-                    @Override
-                    public Boolean call(NewsItem newsItem)
+        if (forceRefresh)
+        {
+            return Observable.concat(getNewsFromDb(), getNewsFromApi()
+                    .onErrorResumeNext(new Func1<Throwable, Observable<? extends NewsItem>>()
                     {
-                        return null;
-                    }
-                });
-
+                        @Override
+                        public Observable<? extends NewsItem> call(Throwable throwable)
+                        {
+                            if (throwable instanceof NoNetworkException)
+                                return getNewsFromDb();
+                            else
+                                return Observable.empty();
+                        }
+                    }));
+        } else
+            return getNewsFromDb();
     }
 
     private Observable<NewsItem> getNewsFromApi()
@@ -58,56 +66,67 @@ public class NewsRepositoryImpl implements NewsRepository
                         @Override
                         public Observable<NewsItem> call(List<NewsItemNetwork> newsItemNetworks)
                         {
-                            if (newsItemNetworks != null && !newsItemNetworks.isEmpty())
-                                return Observable.from(newsItemNetworks).map(new Func1<NewsItemNetwork, NewsItem>()
+                            return Observable.from(newsItemNetworks).map(new Func1<NewsItemNetwork, NewsItem>()
+                            {
+                                @Override
+                                public NewsItem call(NewsItemNetwork newsItemNetwork)
                                 {
-                                    @Override
-                                    public NewsItem call(NewsItemNetwork newsItemNetwork)
-                                    {
-                                        return new NewsItem(newsItemNetwork.getId(),
-                                                newsItemNetwork.getTitle(),
-                                                newsItemNetwork.getUrl(),
-                                                newsItemNetwork.getPublisher(),
-                                                newsItemNetwork.getCategory(),
-                                                newsItemNetwork.getHostname(),
-                                                newsItemNetwork.getTimestamp());
-                                    }
-                                });
-                            else
-                                return Observable.empty();
+                                    saveNewsItemInDb(newsItemNetwork);
+                                    return new NewsItem(newsItemNetwork.getId(),
+                                            newsItemNetwork.getTitle(),
+                                            newsItemNetwork.getUrl(),
+                                            newsItemNetwork.getPublisher(),
+                                            newsItemNetwork.getCategory(),
+                                            newsItemNetwork.getHostname(),
+                                            newsItemNetwork.getTimestamp());
+                                }
+                            });
+
                         }
                     });
         else
-            return Observable.empty();//todo
+            return Observable.error(new NoNetworkException());
+    }
+
+    private void saveNewsItemInDb(NewsItemNetwork newsItemNetwork)
+    {
+        db.insert(NewsItemDb.TABLE, new NewsItemDb.Builder()
+                .id(newsItemNetwork.getId())
+                .title(newsItemNetwork.getTitle())
+                .category(newsItemNetwork.getCategory())
+                .hostname(newsItemNetwork.getHostname())
+                .publisher(newsItemNetwork.getPublisher())
+                .url(newsItemNetwork.getUrl())
+                .timestamp(newsItemNetwork.getTimestamp())
+                .build(), SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     private Observable<NewsItem> getNewsFromDb()
     {
-        String query = "SELECT * from " + NewsItemDb.TABLE + " ORDER BY " + NewsItemDb.TIMESTAMP + " DESC";
+        String query = "SELECT * from " + NewsItemDb.TABLE;
         return db.createQuery(NewsItemDb.TABLE, query, null)
                 .mapToList(NewsItemDb.MapToNewsItemDb)
+                .first()
                 .flatMap(new Func1<List<NewsItemDb>, Observable<NewsItem>>()
                 {
                     @Override
                     public Observable<NewsItem> call(List<NewsItemDb> newsItemDbs)
                     {
-                        if (newsItemDbs != null && !newsItemDbs.isEmpty())
-                            return Observable.from(newsItemDbs).map(new Func1<NewsItemDb, NewsItem>()
+                        return Observable.from(newsItemDbs).map(new Func1<NewsItemDb, NewsItem>()
+                        {
+                            @Override
+                            public NewsItem call(NewsItemDb newsItemDb)
                             {
-                                @Override
-                                public NewsItem call(NewsItemDb newsItemDb)
-                                {
-                                    return new NewsItem(newsItemDb.getId(),
-                                            newsItemDb.getTitle(),
-                                            newsItemDb.getUrl(),
-                                            newsItemDb.getPublisher(),
-                                            newsItemDb.getCategory(),
-                                            newsItemDb.getHostname(),
-                                            newsItemDb.getTimestamp());
-                                }
-                            });
-                        else
-                            return Observable.empty();
+                                return new NewsItem(newsItemDb.getId(),
+                                        newsItemDb.getTitle(),
+                                        newsItemDb.getUrl(),
+                                        newsItemDb.getPublisher(),
+                                        newsItemDb.getCategory(),
+                                        newsItemDb.getHostname(),
+                                        newsItemDb.getTimestamp());
+                            }
+                        });
+
                     }
                 });
     }

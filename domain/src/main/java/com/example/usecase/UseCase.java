@@ -1,9 +1,8 @@
 
 package com.example.usecase;
 
+import com.example.Options;
 import com.example.executor.PostExecutionThread;
-import com.example.executor.ThreadExecutor;
-
 
 import rx.Observable;
 import rx.Subscriber;
@@ -13,25 +12,23 @@ import rx.subscriptions.Subscriptions;
 
 public abstract class UseCase
 {
-    private final ThreadExecutor threadExecutor;
     private final PostExecutionThread postExecutionThread;
 
     private Subscription subscription = Subscriptions.empty();
 
-    protected UseCase(ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread)
+    protected UseCase(PostExecutionThread postExecutionThread)
     {
-        this.threadExecutor = threadExecutor;
         this.postExecutionThread = postExecutionThread;
     }
 
-    protected abstract Observable buildUseCaseObservable();
+    protected abstract Observable buildUseCaseObservable(Options options);
 
 
     @SuppressWarnings("unchecked")
-    public void execute(Subscriber useCaseSubscriber)
+    public void execute(Subscriber useCaseSubscriber, Options options)
     {
-        this.subscription = this.buildUseCaseObservable()
-                .subscribeOn(Schedulers.from(threadExecutor))
+        this.subscription = this.buildUseCaseObservable(options)
+                .subscribeOn(Schedulers.io())
                 .observeOn(postExecutionThread.getScheduler())
                 .subscribe(useCaseSubscriber);
     }

@@ -1,7 +1,7 @@
 package com.example.usecase;
 
+import com.example.Options;
 import com.example.executor.PostExecutionThread;
-import com.example.executor.ThreadExecutor;
 import com.example.repository.NewsRepository;
 
 import rx.Observable;
@@ -14,16 +14,16 @@ public class GetFilteredNews extends UseCase
 {
     private NewsRepository repository;
 
-    public GetFilteredNews(NewsRepository repository, ThreadExecutor threadExecutor,
-                           PostExecutionThread postExecutionThread)
+    public GetFilteredNews(NewsRepository repository, PostExecutionThread postExecutionThread)
     {
-        super(threadExecutor, postExecutionThread);
+        super(postExecutionThread);
         this.repository = repository;
     }
 
     @Override
-    protected Observable buildUseCaseObservable()
+    protected Observable buildUseCaseObservable(Options option)
     {
-        return repository.getLatestNews();
+        GitFilteredNewsOptions filteredNewsOptions = (GitFilteredNewsOptions) option;
+        return repository.getLatestNews(filteredNewsOptions.isForceRefresh());
     }
 }
