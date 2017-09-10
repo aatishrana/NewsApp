@@ -1,4 +1,4 @@
-package com.example;
+package com.aatishrana.data;
 
 /**
  * Created by Aatish on 9/10/2017.

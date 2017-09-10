@@ -23,14 +23,14 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.aatishrana.data.NewsItem;
+import com.aatishrana.data.NewsOptions;
 import com.aatishrana.data.database.DbOpenHelper;
-import com.aatishrana.data.NewsRepositoryImpl;
+import com.aatishrana.data.repository.NewsRepositoryImpl;
 import com.aatishrana.data.network.ApiClient;
 import com.aatishrana.data.network.ApiInterface;
 import com.aatishrana.newsapp.dialogs.FilterDialog;
 import com.aatishrana.newsapp.dialogs.SortDialog;
-import com.example.NewsItem;
-import com.example.usecase.GetFilteredNewsOptions;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements NewsListAdapter.N
     NewsListAdapter adapter;
     NewsRepositoryImpl repository;
     ConnectivityManager connectivityManager;
-    GetFilteredNewsOptions useCaseOption;
+    NewsOptions useCaseOption;
     List<NewsItem> data;
     int count = 0;
     boolean forceRefresh = true;
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements NewsListAdapter.N
 
 
         repository = new NewsRepositoryImpl(apiInterface, db, connectivityManager);
-        useCaseOption = new GetFilteredNewsOptions();
+        useCaseOption = new NewsOptions();
     }
 
     @Override
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements NewsListAdapter.N
         refresh(useCaseOption);
     }
 
-    private void refresh(GetFilteredNewsOptions options)
+    private void refresh(NewsOptions options)
     {
         useCaseOption = options;
         repository.getLatestNews(useCaseOption)

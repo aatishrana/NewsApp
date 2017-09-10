@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.aatishrana.newsapp.R;
-import com.example.Keys;
+import com.aatishrana.data.Keys;
 
 import java.util.ArrayList;
 import java.util.List;

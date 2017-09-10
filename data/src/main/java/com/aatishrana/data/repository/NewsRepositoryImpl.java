@@ -1,4 +1,4 @@
-package com.aatishrana.data;
+package com.aatishrana.data.repository;
 
 
 import android.database.sqlite.SQLiteDatabase;
@@ -6,14 +6,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import com.aatishrana.data.NewsItem;
+import com.aatishrana.data.NewsOptions;
 import com.aatishrana.data.exceptions.NoNetworkException;
 import com.aatishrana.data.models.NewsItemDb;
 import com.aatishrana.data.models.NewsItemNetwork;
 import com.aatishrana.data.network.ApiInterface;
-import com.example.Keys;
-import com.example.NewsItem;
-import com.example.repository.NewsRepository;
-import com.example.usecase.GetFilteredNewsOptions;
+import com.aatishrana.data.Keys;
 import com.squareup.sqlbrite.BriteDatabase;
 
 import java.util.List;
@@ -44,7 +43,7 @@ public class NewsRepositoryImpl implements NewsRepository
     }
 
     @Override
-    public Observable<List<NewsItem>> getLatestNews(final GetFilteredNewsOptions options)
+    public Observable<List<NewsItem>> getLatestNews(final NewsOptions options)
     {
         return getNews(options.isForceRefresh())
                 .filter(new Func1<NewsItem, Boolean>()

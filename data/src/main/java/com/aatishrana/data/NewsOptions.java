@@ -1,12 +1,11 @@
-package com.example.usecase;
+package com.aatishrana.data;
 
-import com.example.Options;
 
 /**
  * Created by Aatish on 9/10/2017.
  */
 
-public class GetFilteredNewsOptions extends Options
+public class NewsOptions
 {
     private boolean forceRefresh = true;
 
@@ -82,7 +81,7 @@ public class GetFilteredNewsOptions extends Options
     @Override
     public String toString()
     {
-        return "GetFilteredNewsOptions{" +
+        return "NewsOptions{" +
                 "forceRefresh=" + forceRefresh +
                 ", filter=" + filter +
                 ", filterKey='" + filterKey + '\'' +

@@ -3,8 +3,8 @@ package com.aatishrana.data.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import com.aatishrana.data.NewsItem;
 import com.aatishrana.data.database.Db;
-import com.example.NewsItem;
 
 import rx.functions.Func1;
 

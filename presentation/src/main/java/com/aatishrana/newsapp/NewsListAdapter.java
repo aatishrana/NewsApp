@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.NewsItem;
+import com.aatishrana.data.NewsItem;
 
 import java.util.List;
 

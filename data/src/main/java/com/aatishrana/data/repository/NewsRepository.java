@@ -1,7 +1,7 @@
-package com.example.repository;
+package com.aatishrana.data.repository;
 
-import com.example.NewsItem;
-import com.example.usecase.GetFilteredNewsOptions;
+import com.aatishrana.data.NewsItem;
+import com.aatishrana.data.NewsOptions;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import rx.Observable;
 
 public interface NewsRepository
 {
-    Observable<List<NewsItem>> getLatestNews(GetFilteredNewsOptions options);
+    Observable<List<NewsItem>> getLatestNews(NewsOptions options);
 
     Observable<List<NewsItem>> getStarredNews();
 
