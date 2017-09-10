@@ -1,6 +1,6 @@
 package com.aatishrana.data.network;
 
-import com.aatishrana.data.NewsItem;
+import com.aatishrana.data.models.NewsItemNetwork;
 
 import java.util.List;
 
@@ -14,5 +14,5 @@ import rx.Observable;
 public interface ApiInterface
 {
     @GET("/newsjson")
-    Observable<List<NewsItem>> getNews();
+    Observable<List<NewsItemNetwork>> getNews();
 }

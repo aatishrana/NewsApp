@@ -1,4 +1,4 @@
-package com.aatishrana.data;
+package com.aatishrana.data.models;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by Aatish on 9/10/2017.
  */
 
-public class NewsItem
+public class NewsItemNetwork
 {
     @SerializedName("ID")
     private long id;
@@ -67,12 +67,12 @@ public class NewsItem
     @Override
     public String toString()
     {
-        return "NewsItem{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", publisher='" + publisher + '\'' +
-                ", category='" + category + '\'' +
-                ", hostname='" + hostname + '\'' +
+        return "NewsItemNetwork{" +
+                "id=" + getId() +
+                ", title='" + getTitle() + '\'' +
+                ", publisher='" + getPublisher() + '\'' +
+                ", category='" + getCategory() + '\'' +
+                ", hostname='" + getHostname() + '\'' +
                 '}';
     }
 }

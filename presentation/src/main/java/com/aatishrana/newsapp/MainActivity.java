@@ -1,11 +1,19 @@
 package com.aatishrana.newsapp;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.aatishrana.data.NewsItem;
-import com.aatishrana.data.NewsRepository;
+import com.aatishrana.data.database.DbOpenHelper;
+import com.aatishrana.data.models.NewsItemNetwork;
+import com.aatishrana.data.NewsRepositoryImpl;
+import com.aatishrana.data.network.ApiClient;
+import com.aatishrana.data.network.ApiInterface;
+import com.squareup.sqlbrite.BriteDatabase;
+import com.squareup.sqlbrite.SqlBrite;
 
 import java.util.List;
 
@@ -13,10 +21,9 @@ import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-
 public class MainActivity extends AppCompatActivity
 {
-    NewsRepository repository;
+    NewsRepositoryImpl repository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -24,29 +31,30 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        repository = new NewsRepository();
-        repository.getLatestNews()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<NewsItem>>()
+        //boiler plate
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+
+        SqlBrite sqlBrite = new SqlBrite.Builder()
+                .logger(new SqlBrite.Logger()
                 {
                     @Override
-                    public void onNext(List<NewsItem> newsItems)
+                    public void log(String message)
                     {
-                        Log.e("aatish", newsItems.toString());
+                        Log.i("aatish", "Database : " + message);
                     }
+                })
+                .build();
 
-                    @Override
-                    public void onCompleted()
-                    {
-                        Log.e("aatish", "complete");
-                    }
+        SQLiteOpenHelper helper = new DbOpenHelper(MainActivity.this);
 
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        Log.e("aatish", e.getLocalizedMessage());
-                    }
-                });
+        BriteDatabase db = sqlBrite.wrapDatabaseHelper(helper, Schedulers.io());
+        db.setLoggingEnabled(true);
+
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+
+        repository = new NewsRepositoryImpl(apiInterface, db, connectivityManager);
+
     }
 }
