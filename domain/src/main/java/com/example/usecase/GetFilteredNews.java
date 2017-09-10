@@ -10,20 +10,19 @@ import rx.Observable;
  * Created by Aatish on 9/10/2017.
  */
 
-public class GetFilteredNews extends UseCase
+public class GetFilteredNews
 {
     private NewsRepository repository;
 
     public GetFilteredNews(NewsRepository repository, PostExecutionThread postExecutionThread)
     {
-        super(postExecutionThread);
         this.repository = repository;
     }
 
-    @Override
-    protected Observable buildUseCaseObservable(Options option)
+
+    public Observable buildUseCaseObservable(Options option)
     {
-        GitFilteredNewsOptions filteredNewsOptions = (GitFilteredNewsOptions) option;
-        return repository.getLatestNews(filteredNewsOptions.isForceRefresh());
+        GetFilteredNewsOptions filteredNewsOptions = (GetFilteredNewsOptions) option;
+        return repository.getLatestNews(filteredNewsOptions);
     }
 }

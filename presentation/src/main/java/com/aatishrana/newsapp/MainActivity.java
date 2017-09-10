@@ -8,34 +8,49 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.aatishrana.data.database.DbOpenHelper;
 import com.aatishrana.data.NewsRepositoryImpl;
 import com.aatishrana.data.network.ApiClient;
 import com.aatishrana.data.network.ApiInterface;
+import com.aatishrana.newsapp.dialogs.FilterDialog;
+import com.aatishrana.newsapp.dialogs.SortDialog;
+import com.example.Keys;
 import com.example.NewsItem;
+import com.example.repository.NewsRepository;
 import com.example.usecase.GetFilteredNews;
-import com.example.usecase.GitFilteredNewsOptions;
+import com.example.usecase.GetFilteredNewsOptions;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observer;
+import rx.Scheduler;
 import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity implements NewsListAdapter.NewsListClickListener
+public class MainActivity extends AppCompatActivity implements NewsListAdapter.NewsListClickListener,
+        FilterDialog.FilterDialogListener, SortDialog.SortDialogListener
 {
     RecyclerView recyclerView;
     NewsListAdapter adapter;
     NewsRepositoryImpl repository;
-    GetFilteredNews useCase;
-    GitFilteredNewsOptions useCaseOption;
+
+    GetFilteredNewsOptions useCaseOption;
     List<NewsItem> data;
     int count = 0;
     boolean forceRefresh = true;
     final String FORCE_REFRESH = "force_refresh";
+
+    FilterDialog filterDialog;
+    SortDialog sortDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -74,9 +89,7 @@ public class MainActivity extends AppCompatActivity implements NewsListAdapter.N
 
 
         repository = new NewsRepositoryImpl(apiInterface, db, connectivityManager);
-        useCase = new GetFilteredNews(repository, new UIThread());
-        useCaseOption = new GitFilteredNewsOptions();
-
+        useCaseOption = new GetFilteredNewsOptions();
     }
 
     @Override
@@ -92,32 +105,126 @@ public class MainActivity extends AppCompatActivity implements NewsListAdapter.N
         super.onResume();
         useCaseOption.setForceRefresh(forceRefresh);
         forceRefresh = false; // fetch latest data only on app load
-        useCase.execute(new Subscriber()
+        refresh(useCaseOption);
+    }
+
+    private void refresh(GetFilteredNewsOptions options)
+    {
+        useCaseOption = options;
+        repository.getLatestNews(useCaseOption)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<NewsItem>>()
+                {
+                    @Override
+                    public void onCompleted()
+                    {
+                        adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(List<NewsItem> newsItem)
+                    {
+                        data.addAll(newsItem);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        int id = item.getItemId();
+        if (id == R.id.action_sort)
         {
-            @Override
-            public void onCompleted()
-            {
-                adapter.notifyDataSetChanged();
-            }
 
-            @Override
-            public void onError(Throwable e)
-            {
-                e.printStackTrace();
-            }
+            if (sortDialog == null)
+                sortDialog = new SortDialog(MainActivity.this);
+            sortDialog.show();
+            return true;
+        }
 
-            @Override
-            public void onNext(Object o)
-            {
-                data.add((NewsItem) o);
-                adapter.notifyItemInserted(count++);
-            }
-        }, useCaseOption);
+        if (id == R.id.action_filter)
+        {
+            if (filterDialog == null)
+                filterDialog = new FilterDialog(MainActivity.this);
+            filterDialog.show();
+            return true;
+        }
+
+        if (id == R.id.action_search)
+        {
+            Toast.makeText(this, "Search is Clicked", Toast.LENGTH_LONG).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onClick(int position, NewsItem newsItem)
     {
 
+    }
+
+    @Override
+    public void onFilter(String key, String value)
+    {
+        data.clear();
+        count = 0;
+        adapter.notifyDataSetChanged();
+
+        useCaseOption.setFilter(true);
+        useCaseOption.setFilterKey(key);
+        useCaseOption.setFilterValue(value);
+        refresh(useCaseOption);
+
+        this.filterDialog.dismiss();
+        this.filterDialog.cancel();
+    }
+
+    @Override
+    public void onSortAsc(String key)
+    {
+        data.clear();
+        count = 0;
+        adapter.notifyDataSetChanged();
+
+        useCaseOption.setSort(true);
+        useCaseOption.setSortKey(key);
+        useCaseOption.setSortTypeDesc(false);
+        refresh(useCaseOption);
+
+        this.sortDialog.dismiss();
+        this.sortDialog.cancel();
+    }
+
+    @Override
+    public void onSortDesc(String key)
+    {
+        data.clear();
+        count = 0;
+        adapter.notifyDataSetChanged();
+
+        useCaseOption.setSort(true);
+        useCaseOption.setSortKey(key);
+        useCaseOption.setSortTypeDesc(true);
+        refresh(useCaseOption);
+
+        this.sortDialog.dismiss();
+        this.sortDialog.cancel();
     }
 }

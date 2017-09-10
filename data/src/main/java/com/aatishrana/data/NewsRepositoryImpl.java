@@ -4,19 +4,23 @@ package com.aatishrana.data;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import com.aatishrana.data.exceptions.NoNetworkException;
 import com.aatishrana.data.models.NewsItemDb;
 import com.aatishrana.data.models.NewsItemNetwork;
 import com.aatishrana.data.network.ApiInterface;
+import com.example.Keys;
 import com.example.NewsItem;
 import com.example.repository.NewsRepository;
+import com.example.usecase.GetFilteredNewsOptions;
 import com.squareup.sqlbrite.BriteDatabase;
 
 import java.util.List;
 
 import rx.Observable;
 import rx.functions.Func1;
+import rx.functions.Func2;
 
 
 /**
@@ -37,7 +41,67 @@ public class NewsRepositoryImpl implements NewsRepository
     }
 
     @Override
-    public Observable<NewsItem> getLatestNews(boolean forceRefresh)
+    public Observable<List<NewsItem>> getLatestNews(final GetFilteredNewsOptions options)
+    {
+        return getNews(options.isForceRefresh())
+                .filter(new Func1<NewsItem, Boolean>()
+                {
+                    @Override
+                    public Boolean call(NewsItem newsItem)
+                    {
+                        if (options.isFilter())
+                        {
+                            String filterKey = options.getFilterKey();
+                            if (filterKey.length() > 0)
+                                switch (filterKey)
+                                {
+                                    case Keys.filterTitle:
+                                        return newsItem.getTitle().toLowerCase().startsWith(options.getFilterValue().toLowerCase());
+                                    case Keys.filterPublisher:
+                                        return newsItem.getPublisher().toLowerCase().startsWith(options.getFilterValue().toLowerCase());
+                                    case Keys.filterCategory:
+                                        return newsItem.getCategory().toLowerCase().startsWith(options.getFilterValue().toLowerCase());
+                                    default:
+                                        return true;
+                                }
+                            else
+                                return true;
+                        } else
+                            return true;
+                    }
+                }).toSortedList(new Func2<NewsItem, NewsItem, Integer>()
+                {
+                    @Override
+                    public Integer call(NewsItem newsItem, NewsItem newsItem2)
+                    {
+                        if (options.isSort())
+                        {
+                            String sortKey = options.getSortKey();
+                            if (sortKey.length() > 0)
+                                switch (sortKey)
+                                {
+                                    case Keys.sortId:
+                                        return Long.compare(newsItem.getId(), newsItem2.getId());
+                                    case Keys.sortCategory:
+                                        return newsItem.getCategory().toLowerCase().compareTo(newsItem2.getCategory().toLowerCase());
+                                    case Keys.sortPublisher:
+                                        return newsItem.getPublisher().toLowerCase().compareTo(newsItem2.getPublisher().toLowerCase());
+                                    case Keys.sortTime:
+                                        return Long.compare(newsItem.getTimestamp(), newsItem2.getTimestamp());
+                                    case Keys.sortTitle:
+                                        return newsItem.getTitle().toLowerCase().compareTo(newsItem2.getTitle().toLowerCase());
+                                    default:
+                                        return 0;
+                                }
+                            else
+                                return 0;
+                        } else
+                            return 0;
+                    }
+                });
+    }
+
+    private Observable<NewsItem> getNews(boolean forceRefresh)
     {
         if (forceRefresh)
         {

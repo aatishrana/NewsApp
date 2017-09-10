@@ -1,6 +1,9 @@
 package com.example.repository;
 
 import com.example.NewsItem;
+import com.example.usecase.GetFilteredNewsOptions;
+
+import java.util.List;
 
 import rx.Observable;
 
@@ -10,5 +13,5 @@ import rx.Observable;
 
 public interface NewsRepository
 {
-    Observable<NewsItem> getLatestNews(boolean forceRefresh);
+    Observable<List<NewsItem>> getLatestNews(GetFilteredNewsOptions options);
 }
