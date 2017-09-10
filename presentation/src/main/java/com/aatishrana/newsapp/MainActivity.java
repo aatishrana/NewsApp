@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Parcelable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,8 +45,10 @@ import rx.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity implements NewsListAdapter.NewsListClickListener,
         FilterDialog.FilterDialogListener, SortDialog.SortDialogListener
 {
+    SwipeRefreshLayout swipeRefreshLayout;
     RecyclerView recyclerView;
     ProgressBar progressBar;
+
     NewsListAdapter adapter;
     NewsRepositoryImpl repository;
     ConnectivityManager connectivityManager;
@@ -72,11 +75,23 @@ public class MainActivity extends AppCompatActivity implements NewsListAdapter.N
         data = new ArrayList<>();
         recyclerView = (RecyclerView) findViewById(R.id.activity_main_recyclerView);
         progressBar = (ProgressBar) findViewById(R.id.activity_main_progressBar);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipeRefresh);
         progressBar.setVisibility(View.VISIBLE);
         linearLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false);
         adapter = new NewsListAdapter(data, MainActivity.this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(adapter);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
+        {
+            @Override
+            public void onRefresh()
+            {
+                useCaseOption.setForceRefresh(true);
+                resetData();
+                refresh(useCaseOption);
+                useCaseOption.setForceRefresh(false);
+            }
+        });
         if (savedInstanceState != null)
         {
             forceRefresh = savedInstanceState.getBoolean(FORCE_REFRESH);
@@ -143,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements NewsListAdapter.N
                         progressBar.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.VISIBLE);
                         adapter.notifyDataSetChanged();
+                        swipeRefreshLayout.setRefreshing(false);
                     }
 
                     @Override
@@ -176,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements NewsListAdapter.N
                         progressBar.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.VISIBLE);
                         adapter.notifyDataSetChanged();
+                        swipeRefreshLayout.setRefreshing(false);
                         starredOpen = true;
                     }
 
